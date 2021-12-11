@@ -6,19 +6,35 @@ using UnityEngine.UI;
 
 public class MainManager : MonoBehaviour
 {
+    public static MainManager Instance;
+
     public Brick BrickPrefab;
     public int LineCount = 6;
     public Rigidbody Ball;
 
     public Text ScoreText;
+    public Text highScoreText;
     public GameObject GameOverText;
     
     private bool m_Started = false;
     private int m_Points;
+    private string m_Name;
     
     private bool m_GameOver = false;
 
-    
+    /*private void Awake()
+    {
+        if (Instance != null)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
+    }
+    */
+
     // Start is called before the first frame update
     void Start()
     {
@@ -36,6 +52,10 @@ public class MainManager : MonoBehaviour
                 brick.onDestroyed.AddListener(AddPoint);
             }
         }
+
+        m_Name = SessionManager.Instance.highScorerName;
+        SessionManager.Instance.LoadScore();
+        highScoreText.text = SessionManager.Instance.highScoreText;
     }
 
     private void Update()
@@ -71,6 +91,15 @@ public class MainManager : MonoBehaviour
     public void GameOver()
     {
         m_GameOver = true;
+
+        if (m_Points > SessionManager.Instance.highScore)
+        {
+            SessionManager.Instance.highScore = m_Points;
+            SessionManager.Instance.highScorerName = m_Name;
+            SessionManager.Instance.SaveScore();
+            
+        }
+        //SessionManager.Instance.LoadScore();
         GameOverText.SetActive(true);
     }
 }
